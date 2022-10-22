@@ -38,13 +38,34 @@ public class PokedexController {
     @PostMapping("/pokedex")
     public ResponseEntity<Pokemon> createPokedexEntry(@RequestBody Pokemon pokemon) {
         try {
-            var pokedexEntry = pokedexService.createPokedexEntry(pokemon);
+            pokedexService.createPokedexEntry(pokemon);
             log.info("New pokedex entry created");
-            return new ResponseEntity<>(pokedexEntry, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (Exception e) {
-            log.error("error creating new pokemon: {}", pokemon.getName());
+            log.error("Error creating new pokemon: {}", pokemon.getName());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
+    @PutMapping("/pokedex/{name}")
+    public ResponseEntity<Pokemon> updatePokedexEntry(@PathVariable("name") String name, @RequestBody Pokemon pokemon) {
+        var pokedexEntry = Optional.ofNullable(pokedexService.retrievePokemonByName(name));
+
+        return pokedexEntry.map(
+                value -> new ResponseEntity<>(
+                        pokedexService.updatePokedexEntry(value), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("/pokedex/{name}")
+    public ResponseEntity<HttpStatus> deletePokedexEntry(@PathVariable String name) {
+        try {
+            pokedexService.deletePokedexEntry(name);
+            log.info("Deleting pokemon: {}", name);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            log.error("Error deleting pokemon: {}", name);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
