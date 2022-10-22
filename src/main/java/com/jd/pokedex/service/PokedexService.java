@@ -20,7 +20,7 @@ public class PokedexService {
     public Pokemon retrievePokemonByName(String name) {
         return retrievePokemonByName(name);
     }
-    
+
     public Pokemon createPokedexEntry(Pokemon pokemon) {
         return repo.save(pokemon);
     }
